@@ -26,6 +26,21 @@ npm install
 npx playwright install
 ```
 
+4. Configure environment variables:
+Create a `.env` file in the root directory of the project and add your login credentials:
+
+```bash
+# Create .env file
+touch .env
+```
+
+Add the following content to the `.env` file:
+```env
+FIXA_USERNAME=yourEmailAddress
+FIXA_PASSWORD=yourPassword
+```
+
+
 ## Project Structure
 
 ```
@@ -36,6 +51,7 @@ npx playwright install
 │   ├── EmployeesTestCase.spec.ts
 │   └── example.spec.ts
 ├── playwright.config.ts      # Playwright Configuration
+├── .env                      # Environment variables (not committed)
 └── FixaUpload.pdf           # Test Data
 ```
 
@@ -67,6 +83,15 @@ After test execution, HTML reports are generated in the `playwright-report` dire
 ```bash
 npx playwright show-report
 ```
+
+## Environment Configuration
+
+The tests use environment variables for authentication. Make sure your `.env` file contains:
+
+- `FIXA_USERNAME`: Your Fixa HR login email
+- `FIXA_PASSWORD`: Your Fixa HR login password
+
+These credentials will be automatically loaded by the test framework for authentication during test execution.
 
 ## Features Tested
 

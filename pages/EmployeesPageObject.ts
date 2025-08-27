@@ -1,6 +1,18 @@
 import { Locator, Page } from "@playwright/test";
 import path from 'path';
 
+export interface EmployeeData {
+    passportNum: string;
+    firstName: string;
+    lastName: string;
+    phoneNum: string;
+    nationality: string;
+    rate: string;
+    accountNum: string;
+    fileName: string;
+    gender: string;
+}
+
 export class EmployeesPageObject {
     private readonly page: Page;
     private readonly addEmployeeBtn: Locator;
@@ -11,7 +23,7 @@ export class EmployeesPageObject {
     private readonly firstName: Locator;
     private readonly lastName: Locator;
     private readonly phoneNumber: Locator;
-    private readonly gender: Locator;
+    private readonly genderDropDown: Locator;
     private readonly nationality: Locator;
     private readonly searchNationality: Locator;
     private readonly selectTrade: Locator;
@@ -24,6 +36,7 @@ export class EmployeesPageObject {
     private readonly processUploadDocumentBtn: Locator;
     private readonly saveEmployeeBtn: Locator;
     private readonly maleOption: Locator;
+    private readonly employeesSection: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -35,7 +48,7 @@ export class EmployeesPageObject {
         this.firstName = page.getByRole('textbox', { name: 'First Name' });
         this.lastName = page.getByRole('textbox', { name: 'Last Name' });
         this.phoneNumber = page.getByRole('textbox', { name: 'Phone Number' });
-        this.gender = page.getByRole('combobox');
+        this.genderDropDown = page.locator('text=Select Gender');
         this.nationality = page.getByRole('textbox', { name: 'Select nationality' });
         this.searchNationality = page.getByPlaceholder('Search...');
         this.selectTrade = page.getByRole('combobox').filter({ hasText: 'Select trade' });
@@ -48,78 +61,108 @@ export class EmployeesPageObject {
         this.processUploadDocumentBtn = page.getByRole('button', { name: 'Next' });
         this.saveEmployeeBtn = page.getByRole('button', { name: 'Save Employee' });
         this.maleOption = page.getByRole('option', { name: 'Male', exact: true });
+        this.employeesSection = page.getByRole('link', { name: 'Employees' });
 
     }
 
 
-    async createEmployee(passportNum: string, fName: string, lName: string, phoneNum: string, nationalityStr: string, rate: string, accountNum: string,fileName: string) {
-        // Click on add employees btn
+    /**
+     * Creates a new employee with the provided details
+     * @param employee Employee data containing all required information
+     */
+    async createEmployee(employee: EmployeeData) {
+        await this.initiateEmployeeCreation();
+        await this.fillPersonalInformation(employee);
+        await this.selectTradeAndRate(employee.rate);
+        await this.setupPaymentInformation(employee.accountNum);
+        await this.uploadDocument(employee.fileName);
+        await this.finalizeEmployeeCreation();
+    }
+
+    /**
+     * Initiates the employee creation process by navigating through initial screens
+     */
+    private async initiateEmployeeCreation() {
         await this.addEmployeeBtn.click();
-
-        // Click on special
         await this.specialEmployeeType.click();
-
-        // Click on continue
         await this.continueBtn.click();
-
-        // Click on add employees manually
         await this.addEmployeesManually.click();
+    }
 
-        // Key in nationality
+    /**
+     * Fills in the personal information section of the employee form
+     * @param employee Employee data containing personal details
+     */
+    private async fillPersonalInformation(employee: EmployeeData) {
+        // Fill nationality
         await this.nationality.click();
-        await this.searchNationality.fill(nationalityStr);
+        await this.searchNationality.fill(employee.nationality);
         await this.searchNationality.press('Enter');
 
-        // Key in ID
-        await this.passportNumber.fill(passportNum);
+        // Fill identification and basic details
+        await this.passportNumber.fill(employee.passportNum);
+        await this.firstName.fill(employee.firstName);
+        await this.lastName.fill(employee.lastName);
+        await this.phoneNumber.fill(employee.phoneNum);
 
-        // Key in first name and last name
-        await this.firstName.fill(fName);
-        await this.lastName.fill(lName);
+        // Select gender
+        await this.selectGender(employee.gender);
 
-        // Clear phone number and key in new value
-        await this.phoneNumber.clear();
-        await this.phoneNumber.fill(phoneNum);
-
-        // Gender
-        await this.gender.click();
-        await this.maleOption.click();
-
-        // Click on continue
         await this.continueBtn.click();
+    }
 
-        // Key in trade
+    /**
+     * Selects the trade and sets the rate for the employee
+     * @param rate Employee's rate/salary
+     */
+    private async selectTradeAndRate(rate: string) {
         await this.selectTrade.click();
         await this.plumberTradeOption.click();
-
-        // Key in rate
         await this.rateSalary.fill(rate);
+    }
 
-        // Key in account number
+    /**
+     * Sets up the payment information for the employee
+     * @param accountNum Employee's bank account number
+     */
+    private async setupPaymentInformation(accountNum: string) {
         await this.paymentMethod.click();
         await this.equityBankOption.click();
         await this.accountNumber.fill(accountNum);
-
-        // Click on continue
         await this.continueBtn.click();
+    }
 
-        // Upload documents
-        await this.uploadDocument(fileName);
-
-        // Click on continue
+    /**
+     * Finalizes the employee creation by saving the form
+     */
+    private async finalizeEmployeeCreation() {
         await this.continueBtn.click();
-
         await this.saveEmployeeBtn.click();
     }
 
-
-    async uploadDocument(fileName) {
+    /**
+     * Uploads a document for the employee
+     * @param fileName Name of the file to upload
+     */
+    async uploadDocument(fileName: string) {
         await this.uploadDocumentBtn.click();
         const filePath = path.resolve(fileName);
         await this.page.locator('input[type=\'file\']').setInputFiles(filePath);
 
         // Click on next
         await this.processUploadDocumentBtn.click();
+    }
+
+    async navigateToEmployeesPage() {
+        await this.employeesSection.click();
+    }
+
+    async selectGender(option: string) {
+        // Click dropdown
+        await this.genderDropDown.click();
+
+        // Click only the visible option inside the dropdown
+        await this.page.locator('[role="option"]', { hasText: option }).click();
     }
 
 }
