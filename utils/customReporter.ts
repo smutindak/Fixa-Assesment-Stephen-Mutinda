@@ -5,6 +5,11 @@ import * as path from 'path';
 class CustomReporter implements Reporter {
     private config!: FullConfig;
     private logs: string[] = [];
+    private startTime: number;
+
+    constructor() {
+        this.startTime = Date.now();
+    }
 
     onBegin(config: FullConfig, suite: Suite) {
         this.config = config;
@@ -14,18 +19,39 @@ class CustomReporter implements Reporter {
 
     onTestBegin(test: TestCase) {
         this.logs.push(`Starting test: ${test.title}`);
+        
+        // Add Allure labels and metadata
+        test.annotations.push({ type: 'feature', description: test.parent.title });
+        test.annotations.push({ type: 'story', description: test.title });
     }
 
     onTestEnd(test: TestCase, result: TestResult) {
         this.logs.push(`Finished test: ${test.title}`);
         this.logs.push(`Status: ${result.status}`);
+        
+        // Add additional metadata for Allure
+        const testInfo = {
+            title: test.title,
+            duration: result.duration,
+            status: result.status,
+            browser: this.config.projects[0]?.name || 'unknown',
+            timestamp: new Date().toISOString()
+        };
+        
         if (result.status === 'failed') {
             this.logs.push(`Error: ${result.error?.message || 'Unknown error'}`);
+            testInfo['error'] = result.error?.message || 'Unknown error';
+            testInfo['stack'] = result.error?.stack;
         }
+        
+        // Store test metadata for Allure
+        test.annotations.push({ type: 'metadata', description: JSON.stringify(testInfo) });
     }
 
     onEnd(result: { status?: string }) {
+        const duration = Date.now() - this.startTime;
         this.logs.push(`Test execution finished at ${new Date().toISOString()}`);
+        this.logs.push(`Total duration: ${duration}ms`);
         this.logs.push(`Final status: ${result.status}`);
         
         // Create logs directory if it doesn't exist

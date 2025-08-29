@@ -22,7 +22,12 @@ export default defineConfig({
   reporter: [
     ['html'],
     ['list'],
-    ['./utils/customReporter.ts']
+    ['./utils/customReporter.ts'],
+    ['allure-playwright', {
+      detail: true,
+      outputFolder: 'allure-results',
+      suiteTitle: false
+    }]
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {

@@ -51,14 +51,29 @@ jobs:
     - name: Run Playwright tests
       run: npx playwright test
       
-    - name: Upload test artifacts
+    - name: Generate Allure Report
+      if: always()
+      run: |
+        npx allure generate allure-results --clean
+        
+    - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: playwright-report
+        name: test-reports
         path: |
           playwright-report/
           test-results/
-          videos/
-        compression-level: 6
+          logs/
+          allure-results/
+          allure-report/
         retention-days: 30
+        compression-level: 6
+        
+    - name: Deploy Allure Report to GitHub Pages
+      if: always()
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./allure-report
+        publish_branch: gh-pages
