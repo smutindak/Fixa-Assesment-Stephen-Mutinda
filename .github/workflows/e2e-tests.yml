@@ -57,11 +57,18 @@ jobs:
         apt-get update
         apt-get install -y openjdk-17-jre-headless
         
+    - name: Clear previous Allure results
+      if: always()
+      run: |
+        rm -rf allure-results/* || true
+        rm -rf allure-report/* || true
+        
     - name: Generate Allure Report
       if: always()
       run: |
         export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
         npx allure generate allure-results --clean
+        echo "Report generated at $(date)" > allure-report/generated.txt
         
     - name: Upload test results
       if: always()
@@ -85,5 +92,6 @@ jobs:
         publish_dir: allure-report
         publish_branch: gh-pages
         force_orphan: true
-        full_commit_message: 'Deploy Allure report to GitHub Pages'
+        full_commit_message: 'Deploy Allure report to GitHub Pages [skip ci] - ${{ github.sha }}'
         enable_jekyll: false
+        cname: ''  # Ensures no caching issues with custom domains
