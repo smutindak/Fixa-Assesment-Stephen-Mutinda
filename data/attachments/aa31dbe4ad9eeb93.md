@@ -1,0 +1,168 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Command Palette" [level=2] [ref=e4]
+      - paragraph [ref=e5]: Search for a command to run...
+    - banner [ref=e6]:
+      - generic [ref=e7]:
+        - img "logo" [ref=e8]
+        - generic [ref=e9]:
+          - heading "Good Afternoon, Tafara 👋🏽" [level=5] [ref=e10]
+          - paragraph [ref=e11]: Here's what's going on today
+      - generic [ref=e12]:
+        - generic:
+          - button
+        - button
+        - button
+        - button
+    - generic [ref=e13]:
+      - complementary [ref=e14]:
+        - generic [ref=e15]:
+          - button "K KING FAISAL Kigali, Kigali" [ref=e16] [cursor=pointer]:
+            - generic [ref=e18] [cursor=pointer]: K
+            - generic [ref=e19] [cursor=pointer]:
+              - paragraph [ref=e20] [cursor=pointer]: KING FAISAL
+              - paragraph [ref=e21] [cursor=pointer]: Kigali, Kigali
+            - img [ref=e23] [cursor=pointer]
+          - generic [ref=e25]:
+            - link "Dashboard" [ref=e26] [cursor=pointer]:
+              - /url: /dashboard
+              - img [ref=e27] [cursor=pointer]
+              - paragraph [ref=e32] [cursor=pointer]: Dashboard
+            - link "Employees" [ref=e34] [cursor=pointer]:
+              - /url: /employees
+              - img [ref=e35] [cursor=pointer]
+              - paragraph [ref=e40] [cursor=pointer]: Employees
+            - link "Attendance" [ref=e41] [cursor=pointer]:
+              - /url: /attendance
+              - img [ref=e42] [cursor=pointer]
+              - paragraph [ref=e44] [cursor=pointer]: Attendance
+            - link "Leaves" [ref=e45] [cursor=pointer]:
+              - /url: /leave
+              - img [ref=e46] [cursor=pointer]
+              - paragraph [ref=e48] [cursor=pointer]: Leaves
+            - link "Payments" [ref=e50] [cursor=pointer]:
+              - /url: /payments
+              - img [ref=e51] [cursor=pointer]
+              - paragraph [ref=e53] [cursor=pointer]: Payments
+            - link "Taxes" [ref=e54] [cursor=pointer]:
+              - /url: /taxes
+              - img [ref=e55] [cursor=pointer]
+              - paragraph [ref=e59] [cursor=pointer]: Taxes
+            - link "Wallet" [ref=e60] [cursor=pointer]:
+              - /url: /wallet
+              - img [ref=e61] [cursor=pointer]
+              - paragraph [ref=e63] [cursor=pointer]: Wallet
+            - link "Account" [ref=e65] [cursor=pointer]:
+              - /url: /account
+              - img [ref=e66] [cursor=pointer]
+              - paragraph [ref=e69] [cursor=pointer]: Account
+            - link "Audit Logs" [ref=e70] [cursor=pointer]:
+              - /url: /audit-logs
+              - img [ref=e71] [cursor=pointer]
+              - paragraph [ref=e76] [cursor=pointer]: Audit Logs
+        - generic [ref=e77]:
+          - generic [ref=e79]: T
+          - generic [ref=e80]:
+            - paragraph [ref=e81]: Tafara Makaza
+            - paragraph [ref=e82]: tafara@fixarwanda.com
+      - main [ref=e83]:
+        - generic [ref=e84]:
+          - navigation "breadcrumb" [ref=e85]:
+            - list [ref=e86]:
+              - listitem [ref=e87]:
+                - link "Back" [ref=e88] [cursor=pointer]:
+                  - /url: /employees/add/10a721a5-b5ca-43de-aac2-f2cf0af47057
+                  - text: Back
+              - listitem [ref=e89]:
+                - img [ref=e90]
+              - listitem [ref=e92]:
+                - link "Employees" [ref=e93] [cursor=pointer]:
+                  - /url: /employees
+              - listitem [ref=e94]:
+                - img [ref=e95]
+              - listitem [ref=e97]:
+                - link "Add Employees" [ref=e98] [cursor=pointer]:
+                  - /url: /employees/add
+              - listitem [ref=e99]:
+                - img [ref=e100]
+              - listitem [ref=e102]:
+                - link "special" [ref=e103] [cursor=pointer]:
+                  - /url: /employees/add/10a721a5-b5ca-43de-aac2-f2cf0af47057
+              - listitem [ref=e104]:
+                - img [ref=e105]
+              - listitem [ref=e107]:
+                - link "Add Employee Manually" [disabled] [ref=e108]
+          - heading "Add Employee Manually" [level=1] [ref=e109]
+          - generic [ref=e110]:
+            - generic [ref=e111]:
+              - generic [ref=e112] [cursor=pointer]:
+                - generic [ref=e114] [cursor=pointer]: "1"
+                - generic [ref=e115] [cursor=pointer]: Personal
+              - generic [ref=e116] [cursor=pointer]:
+                - generic [ref=e118] [cursor=pointer]: "2"
+                - generic [ref=e119] [cursor=pointer]: Trades and Rates
+              - generic [ref=e120] [cursor=pointer]:
+                - generic [ref=e122] [cursor=pointer]: "3"
+                - generic [ref=e123] [cursor=pointer]: Documents
+              - generic:
+                - generic:
+                  - generic: "4"
+                - generic: Preview
+            - generic [ref=e125]:
+              - generic [ref=e126]:
+                - generic [ref=e127]:
+                  - paragraph [ref=e128]: Personal
+                  - button "Edit" [ref=e129] [cursor=pointer]: Edit
+                - generic [ref=e130]:
+                  - generic [ref=e131]:
+                    - generic [ref=e132]: Full Name
+                    - generic [ref=e133]: Jaime Russel
+                    - generic [ref=e134]: Gender
+                    - generic [ref=e135]: Female
+                    - generic [ref=e136]: NID/Passport Number
+                    - generic [ref=e137]: "91564244"
+                  - generic [ref=e138]:
+                    - generic [ref=e139]: Phone Number
+                    - generic [ref=e140]: "+254745864215"
+              - generic [ref=e141]:
+                - generic [ref=e142]:
+                  - paragraph [ref=e143]: Job
+                  - button "Edit" [ref=e144] [cursor=pointer]: Edit
+                - generic [ref=e147]:
+                  - generic [ref=e148]:
+                    - paragraph [ref=e149]: Plumber
+                    - paragraph [ref=e150]: Primary trade
+                  - paragraph [ref=e151]: RWF 500
+              - generic [ref=e152]:
+                - generic [ref=e153]:
+                  - paragraph [ref=e154]: Payment Accounts
+                  - button "Edit" [ref=e155] [cursor=pointer]:
+                    - text: Edit
+                    - img [ref=e157] [cursor=pointer]
+                - generic [ref=e160]:
+                  - generic [ref=e161]:
+                    - paragraph [ref=e162]: "00145628"
+                    - paragraph [ref=e163]: Primary account
+                  - generic [ref=e164]:
+                    - paragraph [ref=e165]: Equity Bank
+                    - paragraph [ref=e166]: .
+                    - paragraph [ref=e167]: jaime russel
+              - generic [ref=e168]:
+                - generic [ref=e169]:
+                  - paragraph [ref=e170]: Documents
+                  - button "Edit" [ref=e171] [cursor=pointer]:
+                    - text: Edit
+                    - img [ref=e173] [cursor=pointer]
+                - generic [ref=e176] [cursor=pointer]:
+                  - img "File content" [ref=e177] [cursor=pointer]
+                  - generic [ref=e178] [cursor=pointer]: FixaUpload.pdf
+          - generic [ref=e179]:
+            - button "Cancel" [ref=e180] [cursor=pointer]
+            - button "Save Employee" [ref=e181] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e182]: Fixa Admin
+```
