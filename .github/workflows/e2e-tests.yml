@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.38.0-jammy
-      # Using the official Microsoft Playwright Docker container
-      options: --user pwuser
+      # Using the official Microsoft Playwright Docker container with root permissions for GitHub Actions compatibility
+      options: --ipc=host
     
     # Add concurrency to prevent multiple workflows running simultaneously
     concurrency:
@@ -23,7 +23,10 @@ jobs:
       cancel-in-progress: true
     
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     
     - name: Cache dependencies
       uses: actions/cache@v3
