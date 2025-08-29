@@ -1,77 +1,45 @@
 import { expect, test } from '@playwright/test';
 import { LoginPageObject } from '../pages/LoginPageObject';
 import { EmployeesPageObject } from '../pages/EmployeesPageObject';
-import { faker } from '@faker-js/faker';
 import { authConfig } from '../config/auth.config';
+import { TestDataGenerator } from '../utils/testData';
 
-// Navigate to login page 
-test.beforeEach(async ({ page }) => {
-  await page.goto('./');
-})
+test.describe('Employee Management', () => {
+    test.beforeEach(async ({ page }) => {
+        await test.step('Navigate to login page', async () => {
+            await page.goto('./');
+        });
+    });
 
-test('Setup employee successfully', async ({ page }) => {
-  // Login to application
-  const loginPage = new LoginPageObject(page);
-  await loginPage.login(authConfig.username, authConfig.password);
+    test('Create new employee successfully', async ({ page }) => {
+        const loginPage = new LoginPageObject(page);
+        const employeesPage = new EmployeesPageObject(page);
+        const employeeData = TestDataGenerator.generateEmployeeData();
 
-  // Wait until redirected to onboarding
-  await page.waitForURL('**/onboarding');
+        await test.step('Login to application', async () => {
+            await loginPage.login({
+                email: authConfig.username,
+                password: authConfig.password
+            });
+            // No need to wait for URL as it's handled in the LoginPageObject
+            expect(await loginPage.isLoggedIn(), 'User should be logged in').toBe(true);
+        });
 
-  const employeesPage = new EmployeesPageObject(page);
+        await test.step('Navigate to employees page', async () => {
+            await employeesPage.navigateToEmployeesPage();
+        });
 
-  // Navigate to employee page
-  await employeesPage.navigateToEmployeesPage();
+        await test.step('Create new employee', async () => {
+            const responsePromise = page.waitForResponse('**/api/v1/employees/bulk');
+            await employeesPage.createEmployee(employeeData);
 
-  // Fill in employee details
-  const employeeData = {
-    passportNum: generateRandomID(8),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    phoneNum: generatePhoneNumber(),
-    nationality: 'Kenya',
-    rate: '500',
-    accountNum: '00145628',
-    fileName: 'FixaUpload.pdf',
-    gender: 'Female'
-  };
+            const response = await responsePromise;
+            const responseData = await response.json();
+            const employeeDetails = responseData.data[0].employee;
 
-  // Wait for the specific bulk employee creation endpoint
-  const responsePromise = page.waitForResponse('**/api/v1/employees/bulk');
-  
-  await employeesPage.createEmployee(employeeData);
-
-  // Get the API response
-  const response = await responsePromise;
-  const responseData = await response.json();
-
-  // Get employee details from the response
-  const employeeDetails = responseData.data[0].employee;
-  const employeeFirstName = employeeDetails.firstName;
-
-  // Assert that employee was created successfully
-  expect(responseData.data[0].saveStatus).toBe('success');
-  expect(responseData.message).toBe('Success');
-  expect(employeeFirstName).toBe(employeeData.firstName);
+            expect(responseData.data[0].saveStatus, 'Employee should be created successfully').toBe('success');
+            expect(responseData.message, 'API should return success message').toBe('Success');
+            expect(employeeDetails.firstName, 'Created employee should have correct first name').toBe(employeeData.firstName);
+        });
+    });
 });
-
-
-function generatePhoneNumber() {
-  const prefix = '2547';
-  const totalLength = 12;
-  const remainingLength = totalLength - prefix.length;
-
-  let number = '';
-  for (let i = 0; i < remainingLength; i++) {
-    number += Math.floor(Math.random() * 10);
-  }
-
-  return prefix + number;
-}
-
-function generateRandomID(length = 8) {
-  let id = '';
-  for (let i = 0; i < length; i++) {
-    id += Math.floor(Math.random() * 10); // generates 0-9
-  }
-  return id;
-}

@@ -62,7 +62,6 @@ export class EmployeesPageObject {
         this.saveEmployeeBtn = page.getByRole('button', { name: 'Save Employee' });
         this.maleOption = page.getByRole('option', { name: 'Male', exact: true });
         this.employeesSection = page.getByRole('link', { name: 'Employees' });
-
     }
 
 
@@ -162,7 +161,7 @@ export class EmployeesPageObject {
         await this.genderDropDown.click();
 
         // Click only the visible option inside the dropdown
-        await this.page.locator('[role="option"]', { hasText: option }).click();
+        await this.page.locator('div[role="option"]', { hasText: option }).click();
     }
 
 }
