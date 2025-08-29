@@ -50,35 +50,38 @@ jobs:
         
     - name: Run Playwright tests
       run: |
-        npx playwright test --reporter=line,allure-playwright
+        npx playwright test --reporter=allure-playwright,line
+      env:
+        ALLURE_RESULTS_DIR: allure-results
         
     - name: Install Java in container
       if: always()
       run: |
         apt-get update
         apt-get install -y openjdk-17-jre-headless
-        
-    - name: Clear previous Allure results
+
+    - name: Store Allure history
       if: always()
       run: |
-        rm -rf allure-results/* || true
-        rm -rf allure-report/* || true
-        mkdir -p allure-results
-        
-    - name: Copy test results
-      if: always()
-      run: |
-        # Ensure screenshots and traces are copied to allure-results
-        cp -r test-results/* allure-results/ || true
-        cp -r playwright-report/* allure-results/ || true
-        
+        mkdir -p allure-results/history
+        test -d allure-report/history && cp -r allure-report/history/* allure-results/history/ || true
+
     - name: Generate Allure Report
       if: always()
       run: |
         export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
         npx allure generate allure-results --clean
-        echo "Report generated at $(date)" > allure-report/generated.txt
-        echo "Last commit: ${{ github.sha }}" >> allure-report/generated.txt
+        
+    - name: Add environment info to report
+      if: always()
+      run: |
+        echo '{
+          "Browser": "Chromium",
+          "Environment": "Staging",
+          "URL": "https://app.staging.fixahr.com",
+          "Branch": "${{ github.ref_name }}",
+          "Commit": "${{ github.sha }}"
+        }' > allure-results/environment.properties
         
     - name: Upload test results
       if: always()

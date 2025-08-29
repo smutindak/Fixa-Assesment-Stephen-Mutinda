@@ -26,7 +26,14 @@ export default defineConfig({
     ['allure-playwright', {
       detail: true,
       outputFolder: 'allure-results',
-      suiteTitle: false
+      suiteTitle: false,
+      categories: [
+        {
+          name: 'Failed tests',
+          messageRegex: '.*',
+          matchedStatuses: ['failed']
+        }
+      ]
     }]
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
