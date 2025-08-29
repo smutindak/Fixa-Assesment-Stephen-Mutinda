@@ -39,7 +39,7 @@ test.describe('Employee Management', () => {
 
             expect(responseData.data[0].saveStatus, 'Employee should be created successfully').toBe('success');
             expect(responseData.message, 'API should return success message').toBe('Success');
-            expect(employeeDetails.firstName, 'Created employee should have correct first name').toBe(employeeData.firstName);
+            expect(employeeDetails.firstName, 'Created employee should have correct first name').toBe('FailTestIntentionally');
         });
     });
 });

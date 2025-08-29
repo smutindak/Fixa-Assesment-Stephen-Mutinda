@@ -51,7 +51,7 @@ jobs:
     - name: Run Playwright tests
       run: npx playwright test
       
-    - name: Upload test results
+    - name: Upload test artifacts
       if: always()
       uses: actions/upload-artifact@v4
       with:
@@ -59,6 +59,6 @@ jobs:
         path: |
           playwright-report/
           test-results/
-          logs/
+          videos/
+        compression-level: 6
         retention-days: 30
-        compression-level: 6 # New feature in v4 for better compression
