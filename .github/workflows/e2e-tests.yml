@@ -49,8 +49,9 @@ jobs:
         echo "FIXA_PASSWORD=${{ secrets.FIXA_PASSWORD }}" >> .env
         
     - name: Run Playwright tests
-      run: npx playwright test
-      
+      run: |
+        npx playwright test --reporter=line,allure-playwright
+        
     - name: Install Java in container
       if: always()
       run: |
@@ -62,6 +63,14 @@ jobs:
       run: |
         rm -rf allure-results/* || true
         rm -rf allure-report/* || true
+        mkdir -p allure-results
+        
+    - name: Copy test results
+      if: always()
+      run: |
+        # Ensure screenshots and traces are copied to allure-results
+        cp -r test-results/* allure-results/ || true
+        cp -r playwright-report/* allure-results/ || true
         
     - name: Generate Allure Report
       if: always()
@@ -69,6 +78,7 @@ jobs:
         export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
         npx allure generate allure-results --clean
         echo "Report generated at $(date)" > allure-report/generated.txt
+        echo "Last commit: ${{ github.sha }}" >> allure-report/generated.txt
         
     - name: Upload test results
       if: always()
