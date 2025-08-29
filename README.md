@@ -4,9 +4,17 @@ This project contains automated tests for the Fixa HR application using Playwrig
 
 ## Prerequisites
 
-Before running the tests, make sure you have the following installed:
+Before running the tests, make sure you have one of the following setups:
+
+### Option 1: Local Setup
 - Node.js (latest LTS version recommended)
 - npm (comes with Node.js)
+
+### Option 2: Docker Setup
+- Docker installed on your system
+  - [Install Docker for Windows](https://docs.docker.com/desktop/install/windows-install/)
+  - [Install Docker for Mac](https://docs.docker.com/desktop/install/mac-install/)
+  - [Install Docker for Linux](https://docs.docker.com/engine/install/)
 
 ## Setup
 
@@ -57,25 +65,51 @@ FIXA_PASSWORD=yourPassword
 
 ## Running Tests
 
-To run all tests:
-```bash
+### Option 1: Running Tests Locally
+
+#### Windows
+```powershell
+# Run all tests
 npx playwright test
-```
 
-To run a specific test file:
-```bash
+# Run specific test file
 npx playwright test tests/EmployeesTestCase.spec.ts
-```
 
-To run tests in headed mode (with browser visible):
-```bash
+# Run in headed mode (browser visible)
 npx playwright test --headed
-```
 
-To run tests in debug mode:
-```bash
+# Run in debug mode
 npx playwright test --debug
 ```
+
+#### MacOS/Linux
+```bash
+# Run all tests
+npx playwright test
+
+# Run specific test file
+npx playwright test tests/EmployeesTestCase.spec.ts
+
+# Run in headed mode (browser visible)
+npx playwright test --headed
+
+# Run in debug mode
+npx playwright test --debug
+```
+
+### Option 2: Running Tests with Docker
+
+#### Windows (PowerShell)
+```powershell
+docker run --rm -v ${PWD}:/app -w /app --ipc=host --network host mcr.microsoft.com/playwright:v1.55.0-jammy /bin/bash -c "npm ci && npx playwright test"
+```
+
+#### MacOS/Linux
+```bash
+docker run --rm -v $(pwd):/app -w /app --ipc=host --network host mcr.microsoft.com/playwright:v1.55.0-jammy /bin/bash -c "npm ci && npx playwright test"
+```
+
+For headed mode testing in Docker, additional configuration may be required for display forwarding.
 
 ## Test Reports
 
