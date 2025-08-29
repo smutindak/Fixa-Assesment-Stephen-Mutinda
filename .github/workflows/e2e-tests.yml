@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  FIXA-E2E-Tests:
     timeout-minutes: 30
-    runs-on: ubuntu-latest
+    runs-on: alpine-latest
     # Add concurrency to prevent multiple workflows running simultaneously
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,30 +20,72 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
+    - name: Install Alpine dependencies
+      run: |
+        apk add --no-cache \
+          chromium \
+          nss \
+          freetype \
+          freetype-dev \
+          ttf-freefont \
+          font-noto-emoji \
+          wqy-zenhei
+    
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
         cache: 'npm'
-        
-    - name: Cache Playwright browsers
+    
+    # Cache version control
+    - name: Get Date
+      id: get-date
+      run: |
+        echo "date=$(date +'%Y-%m')" >> $GITHUB_OUTPUT
+      shell: bash
+
+    # Improved caching strategy with versioning
+    - name: Cache dependencies
+      id: cache-deps
       uses: actions/cache@v3
       with:
-        path: ~/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+        path: |
+          **/node_modules
+          ~/.cache/ms-playwright
+          ~/.npm
+        key: ${{ runner.os }}-deps-${{ steps.get-date.outputs.date }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-deps-${{ steps.get-date.outputs.date }}-
+          ${{ runner.os }}-deps-
+        
+    # Cache cleanup for old caches
+    - name: Cleanup old caches
+      if: github.ref == 'refs/heads/master'
+      run: |
+        gh extension install actions/gh-actions-cache
+        
+        # Get all cache keys
+        CACHE_KEYS=$(gh actions-cache list -R ${{ github.repository }} | grep -oP '${{ runner.os }}-deps-\d{4}-\d{2}' | sort -u)
+        
+        # Keep only the latest 2 monthly caches
+        echo "$CACHE_KEYS" | head -n -2 | while read key; do
+          gh actions-cache delete "$key" -R ${{ github.repository }} --confirm
+        done
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Install dependencies
-      run: npm ci
-      
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps chromium
-      # Only installing Chromium to save time and resources
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: |
+        npm ci
+        npx playwright install --with-deps chromium
+      # Skip installation if cache hit
       
     - name: Create env file
       run: |
         touch .env
-        echo "FIXA_USERNAME=${{ secrets.FIXA_USERNAME }}" >> .env
-        echo "FIXA_PASSWORD=${{ secrets.FIXA_PASSWORD }}" >> .env
+        echo "FIXA_USERNAME=${{ secrets.FIXA_USER }}" >> .env
+        echo "FIXA_PASSWORD=${{ secrets.FIXA_PASS }}" >> .env
         
     - name: Run Playwright tests
       run: npx playwright test
