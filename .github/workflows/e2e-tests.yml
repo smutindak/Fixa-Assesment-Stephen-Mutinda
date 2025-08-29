@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  FIX-E2E-TESTS:
+  FIXA-E2E-TESTS:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     container:
