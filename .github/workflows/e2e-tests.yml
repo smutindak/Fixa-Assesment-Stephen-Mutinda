@@ -3,8 +3,18 @@ name: E2E Tests
 on:
   push:
     branches: [ master ]
+    paths:
+      - '**.ts'
+      - '**.js'
+      - 'package*.json'
+      - '.github/workflows/**'
   pull_request:
     branches: [ master ]
+    paths:
+      - '**.ts'
+      - '**.js'
+      - 'package*.json'
+      - '.github/workflows/**'
   # Allow manual trigger
   workflow_dispatch:
 
@@ -12,41 +22,54 @@ jobs:
   FIXA-E2E-TESTS:
     timeout-minutes: 30
     runs-on: ubuntu-latest
+    
+    # Prevent redundant workflow runs
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.pull_request.number || github.sha }}
+      cancel-in-progress: true
+    
     container:
       image: mcr.microsoft.com/playwright:v1.55.0-jammy
-      # Using the official Microsoft Playwright Docker container with root permissions for GitHub Actions compatibility
-      options: --ipc=host
-    
-    # Add concurrency to prevent multiple workflows running simultaneously
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
+      options: --ipc=host --shm-size=2gb
     
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        persist-credentials: false
+        fetch-depth: 1
     
-    - name: Cache dependencies
-      uses: actions/cache@v3
+    - name: Setup Node.js and cache
+      uses: actions/setup-node@v3
       with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
     
     - name: Install dependencies
-      run: |
-        # Install dependencies using clean install
-        npm ci
-        # No need to install browsers as they are pre-installed in the container
+      run: npm ci --prefer-offline --no-audit
       
-    - name: Create env file
+    - name: Setup environment variables
       run: |
-        touch .env
-        echo "FIXA_USERNAME=${{ secrets.FIXA_USERNAME }}" >> .env
-        echo "FIXA_PASSWORD=${{ secrets.FIXA_PASSWORD }}" >> .env
-        
+        cat << EOF > .env
+        FIXA_USERNAME=${{ secrets.FIXA_USERNAME }}
+        FIXA_PASSWORD=${{ secrets.FIXA_PASSWORD }}
+        EOF
+      
     - name: Run Playwright tests
-      run: npx playwright test
+      run: npx playwright test --workers=2
+      env:
+        CI: 'true'
+        NODE_ENV: 'test'
+      
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report-${{ github.sha }}
+        path: |
+          playwright-report/
+          test-results/
+          logs/
+        retention-days: 14
+        compression-level: 9
+        if-no-files-found: error
