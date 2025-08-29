@@ -29,11 +29,54 @@ export default defineConfig({
       suiteTitle: false,
       categories: [
         {
-          name: 'Failed tests',
+          name: 'Passed Tests',
+          messageRegex: '.*',
+          matchedStatuses: ['passed']
+        },
+        {
+          name: 'Failed Tests',
           messageRegex: '.*',
           matchedStatuses: ['failed']
+        },
+        {
+          name: 'Broken Tests',
+          messageRegex: '.*',
+          matchedStatuses: ['broken']
+        },
+        {
+          name: 'Skipped Tests',
+          messageRegex: '.*',
+          matchedStatuses: ['skipped']
+        },
+        {
+          name: 'Product Defects',
+          messageRegex: '.*(failed|error|Error|ERROR|Failed|FAILED).*',
+          matchedStatuses: ['failed']
+        },
+        {
+          name: 'Test Defects',
+          messageRegex: '.*(TypeError|ReferenceError|SyntaxError).*',
+          matchedStatuses: ['broken']
+        },
+        {
+          name: 'Flaky Tests',
+          messageRegex: '.*',
+          matchedStatuses: ['passed', 'failed', 'broken'],
+          traceRegex: '.*retry.*'
         }
-      ]
+      ],
+      environmentInfo: {
+        framework: 'Playwright',
+        platform: process.platform,
+        node: process.version,
+        browser: 'chromium'
+      },
+      historyDir: './allure-results/history',
+      allureAttachments: true,
+      attachScreenshots: true,
+      attachVideos: true,
+      attachTraces: true,
+      attachLogs: true
     }]
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

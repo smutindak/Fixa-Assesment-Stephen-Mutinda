@@ -60,16 +60,24 @@ jobs:
         apt-get update
         apt-get install -y openjdk-17-jre-headless
 
-    - name: Download Allure history
+    - name: Get Allure history
+      uses: actions/checkout@v4
       if: always()
       continue-on-error: true
+      with:
+        ref: gh-pages
+        path: gh-pages
+        
+    - name: Setup Allure history
+      if: always()
       run: |
-        REPO="${GITHUB_REPOSITORY}"
-        BRANCH="gh-pages"
         mkdir -p allure-results/history
         mkdir -p allure-report
-        curl -L "https://github.com/${REPO}/archive/${BRANCH}.tar.gz" | tar -xz -C /tmp/
-        cp -R /tmp/*/allure-report/history/* allure-results/history/ || true
+        
+        if [ -d "gh-pages/history" ]; then
+          echo "Found previous history"
+          cp -r gh-pages/history/* allure-results/history/
+        fi
         
     - name: Prepare Allure directories
       if: always()
@@ -82,15 +90,22 @@ jobs:
       if: always()
       run: |
         export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+        
+        # Generate report with history
         npx allure generate allure-results --clean
         
-        # Copy history back to results to keep trend data
-        cp -R allure-report/history/* allure-results/history/ || true
+        # Ensure history is preserved
+        mkdir -p allure-report/history
+        cp -r allure-results/history/* allure-report/history/ || true
         
         # Add build info
-        echo "Build: #${{ github.run_number }}" >> allure-results/environment.properties
-        echo "Branch: ${{ github.ref_name }}" >> allure-results/environment.properties
-        echo "Time: $(date)" >> allure-results/environment.properties
+        echo "Build: #${{ github.run_number }}" >> allure-report/environment.properties
+        echo "Branch: ${{ github.ref_name }}" >> allure-report/environment.properties
+        echo "Time: $(date)" >> allure-report/environment.properties
+        echo "Commit: ${{ github.sha }}" >> allure-report/environment.properties
+        
+        # Create history directory if deploying first time
+        mkdir -p allure-report/history
         
     - name: Add environment info to report
       if: always()
@@ -135,6 +150,12 @@ jobs:
         personal_token: ${{ secrets.GH_PAGES_TOKEN }}
         publish_dir: allure-report
         publish_branch: gh-pages
-        force_orphan: true
-        full_commit_message: 'Fresh Allure report deployment [skip ci] - ${{ github.sha }} - $(date)'
+        keep_files: true
+        full_commit_message: 'Deploy Allure Report for run #${{ github.run_number }} [skip ci]'
         enable_jekyll: false
+        
+    - name: Post Report URL
+      if: always()
+      run: |
+        echo "Allure Report deployed to https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+        echo "View test history and trends in the Trends tab"
