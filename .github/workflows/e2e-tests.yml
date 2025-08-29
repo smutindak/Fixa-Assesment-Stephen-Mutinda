@@ -33,6 +33,24 @@ jobs:
       options: --ipc=host --shm-size=2gb
     
     steps:
+    - name: Cache Docker image
+      uses: actions/cache@v3
+      with:
+        path: /tmp/docker-save
+        key: docker-${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          docker-${{ runner.os }}-playwright-
+    
+    - name: Load cached Docker image
+      run: |
+        if [ -f /tmp/docker-save/playwright.tar ]; then
+          docker load < /tmp/docker-save/playwright.tar
+        else
+          mkdir -p /tmp/docker-save
+          docker pull mcr.microsoft.com/playwright:v1.55.0-jammy
+          docker save mcr.microsoft.com/playwright:v1.55.0-jammy > /tmp/docker-save/playwright.tar
+        fi
+    
     - name: Checkout
       uses: actions/checkout@v4
       with:
