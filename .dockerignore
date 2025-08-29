@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+test-results
+playwright-report
+allure-results
+allure-report
+.git
+.github
+.env
+*.md
+.gitignore
