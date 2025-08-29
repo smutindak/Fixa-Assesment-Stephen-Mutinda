@@ -60,17 +60,37 @@ jobs:
         apt-get update
         apt-get install -y openjdk-17-jre-headless
 
-    - name: Store Allure history
+    - name: Download Allure history
+      if: always()
+      continue-on-error: true
+      run: |
+        REPO="${GITHUB_REPOSITORY}"
+        BRANCH="gh-pages"
+        mkdir -p allure-results/history
+        mkdir -p allure-report
+        curl -L "https://github.com/${REPO}/archive/${BRANCH}.tar.gz" | tar -xz -C /tmp/
+        cp -R /tmp/*/allure-report/history/* allure-results/history/ || true
+        
+    - name: Prepare Allure directories
       if: always()
       run: |
-        mkdir -p allure-results/history
-        test -d allure-report/history && cp -r allure-report/history/* allure-results/history/ || true
-
+        rm -rf allure-report || true
+        mkdir -p allure-results
+        mkdir -p allure-report
+        
     - name: Generate Allure Report
       if: always()
       run: |
         export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
         npx allure generate allure-results --clean
+        
+        # Copy history back to results to keep trend data
+        cp -R allure-report/history/* allure-results/history/ || true
+        
+        # Add build info
+        echo "Build: #${{ github.run_number }}" >> allure-results/environment.properties
+        echo "Branch: ${{ github.ref_name }}" >> allure-results/environment.properties
+        echo "Time: $(date)" >> allure-results/environment.properties
         
     - name: Add environment info to report
       if: always()
@@ -97,6 +117,17 @@ jobs:
         retention-days: 30
         compression-level: 6
         
+    - name: Cache Allure history
+      if: always()
+      uses: actions/cache@v3
+      with:
+        path: |
+          allure-report/history
+          allure-results/history
+        key: allure-history-${{ github.run_number }}
+        restore-keys: |
+          allure-history-
+        
     - name: Deploy Allure Report to GitHub Pages
       if: always()
       uses: peaceiris/actions-gh-pages@v3
@@ -105,6 +136,5 @@ jobs:
         publish_dir: allure-report
         publish_branch: gh-pages
         force_orphan: true
-        full_commit_message: 'Deploy Allure report to GitHub Pages [skip ci] - ${{ github.sha }}'
+        full_commit_message: 'Fresh Allure report deployment [skip ci] - ${{ github.sha }} - $(date)'
         enable_jekyll: false
-        cname: ''  # Ensures no caching issues with custom domains
