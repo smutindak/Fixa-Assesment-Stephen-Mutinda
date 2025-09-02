@@ -49,17 +49,19 @@ jobs:
         
     - name: Run tests in Docker
       run: |
-        docker run --rm \
+        # Run tests in Docker with a timeout
+        timeout 25m docker run --rm \
           --ipc=host \
           --shm-size=2gb \
           -v ${{ github.workspace }}:/app \
           -w /app \
           --network host \
           mcr.microsoft.com/playwright:v1.55.0-jammy \
-          /bin/bash -c "npm ci && npx playwright test --workers=2"
+          /bin/bash -c "npm ci && npx playwright test --workers=2 || exit 1"
       env:
         CI: 'true'
         NODE_ENV: 'test'
+      continue-on-error: false
       
     - name: Upload test results
       if: always()
