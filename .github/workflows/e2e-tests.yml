@@ -47,15 +47,41 @@ jobs:
         mkdir -p logs
         chmod -R 777 playwright-report test-results logs
 
-    # Use dedicated Docker cache action
-    - name: Cache Docker images
-      uses: ScribeMD/docker-cache@0.5.0
+    # Cache npm dependencies to avoid reinstalling in Docker
+    - name: Cache Node modules
+      uses: actions/cache@v4
       with:
-        key: docker-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
-    # Pull the Playwright image (will be cached automatically)
-    - name: Pull Playwright Docker image
-      run: docker pull mcr.microsoft.com/playwright:v1.55.0-jammy
+    # Cache Playwright Docker image
+    - name: Cache Playwright Docker image
+      uses: actions/cache@v4
+      id: cache-docker
+      with:
+        path: /tmp/docker-save
+        key: docker-playwright-v1.55.0-jammy-${{ runner.os }}
+        restore-keys: |
+          docker-playwright-v1.55.0-jammy-
+
+    - name: Load Docker image from cache
+      if: steps.cache-docker.outputs.cache-hit == 'true'
+      run: |
+        echo "Loading cached Docker image..."
+        docker load < /tmp/docker-save/playwright.tar
+
+    - name: Pull and save Docker image
+      if: steps.cache-docker.outputs.cache-hit != 'true'
+      run: |
+        mkdir -p /tmp/docker-save
+        echo "Pulling fresh Playwright image..."
+        docker pull mcr.microsoft.com/playwright:v1.55.0-jammy
+        echo "Saving Docker image to cache..."
+        docker save mcr.microsoft.com/playwright:v1.55.0-jammy > /tmp/docker-save/playwright.tar
+        echo "Image saved. File size:"
+        ls -lh /tmp/docker-save/playwright.tar
         
     - name: Run tests in Docker
       run: |
