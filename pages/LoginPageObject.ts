@@ -19,8 +19,8 @@ export class LoginPageObject {
     constructor(page: Page) {
         this.page = page;
         // More specific selectors with better accessibility
-        this.emailAddressInput = page.getByLabel('Email address', { exact: true });
-        this.passwordInput = page.getByLabel('Password', { exact: true });
+        this.emailAddressInput = page.getByRole('textbox', { name: '* Username' });
+        this.passwordInput = page.getByRole('textbox', { name: '* Password' });
         this.loginBtn = page.getByRole('button', { name: 'Login to Fixa', exact: true });
         this.errorMessage = page.getByRole('alert');
     }
