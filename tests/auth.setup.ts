@@ -9,7 +9,7 @@ setup('authentication', async ({ page }) => {
 
     await test.step('Login to application', async () => {
         await page.goto('./');
-        
+
         await loginPage.login({
             email: authConfig.username,
             password: authConfig.password
@@ -18,5 +18,6 @@ setup('authentication', async ({ page }) => {
         expect(await loginPage.isLoggedIn(), 'User should be logged in').toBe(true);
 
         await page.context().storageState({ path: authFile });
+        console.log('✓ Authentication state saved successfully');
     });
 });
