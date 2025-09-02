@@ -34,11 +34,11 @@ export class LoginPageObject {
     async login(credentials: LoginCredentials): Promise<void> {
         // Block Tawk.to before anything else
         await this.preventTawkToWidget();
-        
+
         await this.fillLoginForm(credentials);
         await this.submitLogin();
     }
-   
+
 
     /**
      * Fills in the login form with provided credentials
@@ -78,19 +78,19 @@ export class LoginPageObject {
     /**
      * Prevents Tawk.to chat widget from loading
      */
-    private async preventTawkToWidget(): Promise<void> {
+    async preventTawkToWidget(): Promise<void> {
         // Block Tawk.to scripts and resources
         await this.page.route('**/*.tawk.to/**', route => route.abort());
-        
+
         // Prevent Tawk.to widget from initializing
         await this.page.addInitScript(() => {
             Object.defineProperty(window, 'Tawk_API', {
                 get: () => undefined,
-                set: () => {}
+                set: () => { }
             });
             Object.defineProperty(window, 'Tawk_LoadStart', {
                 get: () => undefined,
-                set: () => {}
+                set: () => { }
             });
         });
     }
